@@ -13,8 +13,8 @@
 package android.privacy;
 
 /**
- * Thrown if it is detected that the privacy service proxy is not of the correct class (and thus may have
- * been replaced by reflection)
+ * Thrown if it is detected that the privacy service proxy is not of the correct class
+ * (and thus may have been replaced by reflection)
  * @author smorgan
  *
  */

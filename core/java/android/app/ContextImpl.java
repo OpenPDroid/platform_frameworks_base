@@ -308,8 +308,9 @@ class ContextImpl extends Context {
                     IBinder b = ServiceManager.getService(ACCOUNT_SERVICE);
                     IAccountManager service = IAccountManager.Stub.asInterface(b);
                     // BEGIN privacy-modified
-                    Log.d(TAG, "Privacy:ContextImpl: returning PrivacyAccountManager rather than AccountManager");
-                    //return new AccountManager(ctx, service);
+                    Log.d(TAG, "Privacy:ContextImpl: returning PrivacyAccountManager rather than"
+                            + " AccountManager");
+                    // return new AccountManager(ctx, service);
                     return new PrivacyAccountManager(ctx, service);
                     // END privacy-modified
                 }});
@@ -352,7 +353,7 @@ class ContextImpl extends Context {
                     IBinder b = ServiceManager.getService(CONNECTIVITY_SERVICE);
                     // BEGIN privacy-modified
                     // SM: Having a 'static outer context' may be problematic if
-                    //      there is more than one instance of this class, ever.
+                    // there is more than one instance of this class, ever.
                     Log.d(TAG, "Privacy:ContextImpl: returning PrivacyConnectivityManager");
                     //return new ConnectivityManager(IConnectivityManager.Stub.asInterface(b));
                     IConnectivityManager service = IConnectivityManager.Stub.asInterface(b);
@@ -423,16 +424,18 @@ class ContextImpl extends Context {
 
         registerService(LOCATION_SERVICE, new ServiceFetcher() {
                 public Object createService(ContextImpl ctx) {
-    	            IBinder b = ServiceManager.getService(LOCATION_SERVICE);
+                    IBinder b = ServiceManager.getService(LOCATION_SERVICE);
     
-    	            // BEGIN privacy-modified
-    	            //return new LocationManager(ctx, ILocationManager.Stub.asInterface(b));
-    	            Log.d(TAG, "Privacy:ContextImpl: returning PrivacyLocationManager");
-    	            // SM: I'm not sure whyt this is using getStaticOuterContext rather than getOuterContext.
-    	            // Would have thought it should have been the following line:
-    	            // return new PrivacyLocationManager(ILocationManager.Stub.asInterface(b), ctx.getOuterContext());
-    	            return new PrivacyLocationManager(ILocationManager.Stub.asInterface(b), getStaticOuterContext());
-    	            // END privacy-modified                    
+                    // BEGIN privacy-modified
+                    //return new LocationManager(ctx, ILocationManager.Stub.asInterface(b));
+                    Log.d(TAG, "Privacy:ContextImpl: returning PrivacyLocationManager");
+                    // SM: I'm not sure whyt this is using getStaticOuterContext rather than
+                    // getOuterContext. Would have thought it should have been the following line:
+                    // return new PrivacyLocationManager(ILocationManager.Stub.asInterface(b),
+                    //         ctx.getOuterContext());
+                    return new PrivacyLocationManager(ILocationManager.Stub.asInterface(b),
+                            getStaticOuterContext());
+                    // END privacy-modified                    
                 }});
 
         registerService(NETWORK_POLICY_SERVICE, new ServiceFetcher() {
@@ -1885,7 +1888,8 @@ class ContextImpl extends Context {
 
     ContextImpl() {
         if (sOuterContext != null) {
-            Log.d(TAG, "Privacy:ContextImpl: ContextImpl being created but already has sOuterContext");
+            Log.d(TAG, "Privacy:ContextImpl: "
+                    + "ContextImpl being created but already has sOuterContext");
         }
         sOuterContext = mOuterContext = this;
     }
@@ -1906,7 +1910,8 @@ class ContextImpl extends Context {
         mDisplay = context.mDisplay;
         
         if (sOuterContext != null) {
-            Log.d(TAG, "Privacy:ContextImpl: ContextImpl being created but already has sOuterContext");
+            Log.d(TAG, "Privacy:ContextImpl: "
+                    + "ContextImpl being created but already has sOuterContext");
         }
         
         sOuterContext = mOuterContext = this;
@@ -1966,7 +1971,8 @@ class ContextImpl extends Context {
 
     final void setOuterContext(Context context) {
         if (sOuterContext != null) {
-            Log.d(TAG, "Privacy:ContextImpl: ContextImpl being created but already has sOuterContext");
+            Log.d(TAG, "Privacy:ContextImpl: "
+                    + "ContextImpl being created but already has sOuterContext");
         }
 
         sOuterContext = mOuterContext = context;

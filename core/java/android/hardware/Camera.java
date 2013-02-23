@@ -42,7 +42,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//BEGIN PRIVACY 
+
 import android.privacy.IPrivacySettingsManager;
 import android.privacy.PrivacyServiceException;
 import android.privacy.PrivacySettings;
@@ -61,7 +63,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-///////////////////////////////////////////////////////
+
+//END PRIVACY 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * The Camera class is used to set image capture settings, start/stop preview,
@@ -184,7 +188,7 @@ public class Camera {
     private Object mAutoFocusCallbackLock = new Object();
 
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     //BEGIN PRIVACY 
 
     private static final int IS_ALLOWED = -1;
@@ -202,130 +206,133 @@ public class Camera {
     private IPackageManager mPm;
     
     //END PRIVACY
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     //BEGIN PRIVACY
     /**
      * {@hide}
-     * @return package names of current process which is using this object or null if something went wrong
+     * @return package names of current process which is 
+     * using this object or null if something went wrong
      */
-    private String[] getPackageName(){
-    	try{
-    		if(mPm != null){
-        		int uid = Process.myUid();
-        		String[] package_names = mPm.getPackagesForUid(uid);
-        		return package_names;
-        	}
-    		else{
-    			mPm = IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
-    			int uid = Process.myUid();
-        		String[] package_names = mPm.getPackagesForUid(uid);
-        		return package_names;
-    		}
-    	}
-    	catch(Exception e){
-    		e.printStackTrace();
-    		Log.e(PRIVACY_TAG,"something went wrong with getting package name");
-    		return null;
-    	}
+    private String[] getPackageName() {
+        try {
+            if(mPm != null){
+                int uid = Process.myUid();
+                String[] package_names = mPm.getPackagesForUid(uid);
+                return package_names;
+            }
+            else {
+                mPm = IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
+                int uid = Process.myUid();
+                String[] package_names = mPm.getPackagesForUid(uid);
+                return package_names;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(PRIVACY_TAG,"something went wrong with getting package name");
+            return null;
+        }
     }
     /**
      * This method returns the fake image which should be in system folder! 
      * @return byte array of jpeg fake image or null if something went wrong
      * {@hide}
      */
-    private byte[] getFakeImage(){
-	try{
-		String filepath = "/system/media/PDroid.jpeg";
-        	File imagefile = new File(filepath);
-        	FileInputStream fis = null;
-        	
-          	fis = new FileInputStream(imagefile);
-        	
-       	 	Bitmap bm = BitmapFactory.decodeStream(fis);
-        	ByteArrayOutputStream helper = new ByteArrayOutputStream();  
-        	bm.compress(Bitmap.CompressFormat.JPEG, 100 , helper);    
-		return helper.toByteArray();
-	}
-	catch (Exception e){
-		Log.e(PRIVACY_TAG,"something went wrong with getting the picture!");
-		e.printStackTrace();
-		return null;
-	}
+    private byte[] getFakeImage() {
+        try {
+            String filepath = "/system/media/PDroid.jpeg";
+                File imagefile = new File(filepath);
+                FileInputStream fis = null;
+                
+                  fis = new FileInputStream(imagefile);
+                
+                    Bitmap bm = BitmapFactory.decodeStream(fis);
+                ByteArrayOutputStream helper = new ByteArrayOutputStream();  
+                bm.compress(Bitmap.CompressFormat.JPEG, 100 , helper);    
+            return helper.toByteArray();
+        } catch (Exception e) {
+            Log.e(PRIVACY_TAG,"something went wrong with getting the picture!");
+            e.printStackTrace();
+            return null;
+        }
     }
     /**
      * {@hide}
-     * This method sets up all variables which are needed for privacy mode! It also writes to privacyMode, if everything was successfull or not! 
+     * This method sets up all variables which are needed for privacy mode! It also writes to 
+     * privacyMode, if everything was successfull or not! 
      * -> privacyMode = true ok! otherwise false!
      * CALL THIS METHOD IN CONSTRUCTOR!
      */
-    private void initiate(){
-    	try{
-    		context = null;
-    		if (pSetMan == null) pSetMan = PrivacySettingsManager.getPrivacyService();
-    		mPm = IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
-       	 	privacyMode = true;
-    	}
-    	catch(Exception e){
-    		e.printStackTrace();
-    		Log.e(PRIVACY_TAG, "Something went wrong with initalize variables");
-    		privacyMode = false;
-    	}
+    private void initiate() {
+        try {
+            context = null;
+            if (pSetMan == null) pSetMan = PrivacySettingsManager.getPrivacyService();
+            mPm = IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
+                privacyMode = true;
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(PRIVACY_TAG, "Something went wrong with initalize variables");
+            privacyMode = false;
+        }
     }
 
     /**
      * {@hide}
      * This method should be used, because in some devices the uid has more than one package within!
-     * @return IS_ALLOWED (-1) if all packages allowed, IS_NOT_ALLOWED(-2) if one of these packages not allowed, GOT_ERROR (-3) if something went wrong
+     * @return IS_ALLOWED (-1) if all packages allowed, IS_NOT_ALLOWED(-2) if one of these packages 
+     * not allowed, GOT_ERROR (-3) if something went wrong
      */
-    private int checkIfPackagesAllowed(){
-    	try{
-    		//boolean isAllowed = false;
-    	    if (pSetMan == null) pSetMan = PrivacySettingsManager.getPrivacyService();
-    		String[] package_names = getPackageName();
-    		if (package_names == null) {
-                Log.e(PRIVACY_TAG,"Camera:checkIfPackagesAllowed: return GOT_ERROR, because package_names are NULL");
+    private int checkIfPackagesAllowed() {
+        try {
+            //boolean isAllowed = false;
+            if (pSetMan == null) pSetMan = PrivacySettingsManager.getPrivacyService();
+            String[] package_names = getPackageName();
+            if (package_names == null) {
+                Log.e(PRIVACY_TAG,"Camera:checkIfPackagesAllowed: "
+                        + "return GOT_ERROR, because package_names are NULL");
                 return GOT_ERROR;
-    		}
-			PrivacySettings pSet = null;
-		    try {
-	        	for(int i=0;i < package_names.length; i++){
-	        		pSet = pSetMan.getSettings(package_names[i]);
-	        		if(pSet != null && (pSet.getCameraSetting() != PrivacySettings.REAL)){ //if pSet is null, we allow application to access to mic
-	        			return IS_NOT_ALLOWED;
-	        		}
-	        		pSet = null;
-	        	}
-		    } catch (PrivacyServiceException e) {
-		        Log.e(PRIVACY_TAG,"Camera:checkIfPackagesAllowed:return GOT_ERROR, because PrivacyServiceException occurred");
-		        return GOT_ERROR;
-		    }
-	    	return IS_ALLOWED;
-    	} catch (Exception e){
-    		Log.e(PRIVACY_TAG,"Camera:checkIfPackagesAllowed: Got exception in checkIfPackagesAllowed", e);
-    		return GOT_ERROR;
-    	}
+            }
+            PrivacySettings pSet = null;
+            try {
+                for(int i=0;i < package_names.length; i++) {
+                    pSet = pSetMan.getSettings(package_names[i]);
+                    //if pSet is null, we allow application to access to mic
+                    if(pSet != null && (pSet.getCameraSetting() != PrivacySettings.REAL)) {
+                        return IS_NOT_ALLOWED;
+                    }
+                    pSet = null;
+                }
+            } catch (PrivacyServiceException e) {
+                Log.e(PRIVACY_TAG,"Camera:checkIfPackagesAllowed: "
+                        + "return GOT_ERROR, because PrivacyServiceException occurred");
+                return GOT_ERROR;
+            }
+            return IS_ALLOWED;
+        } catch (Exception e) {
+            Log.e(PRIVACY_TAG,"Camera:checkIfPackagesAllowed: "
+                    + "Got exception in checkIfPackagesAllowed", e);
+            return GOT_ERROR;
+        }
     }
     
     /**
      * Loghelper method, true = access successful, false = blocked access
      * {@hide}
      */
-    private void dataAccess(boolean success){
-	String package_names[] = getPackageName();
-	if(success && package_names != null){
-		for(int i=0;i<package_names.length;i++)
-			Log.i(PRIVACY_TAG,"Allowed Package: -" + package_names[i] + "- accessing camera.");
-	}
-	else if(package_names != null){
-		for(int i=0;i<package_names.length;i++)
-			Log.i(PRIVACY_TAG,"Blocked Package: -" + package_names[i] + "- accessing camera.");
-	}
+    private void dataAccess(boolean success) {
+        String package_names[] = getPackageName();
+        if(success && package_names != null) {
+            for(int i=0;i<package_names.length;i++)
+                Log.i(PRIVACY_TAG,"Allowed Package: -" + package_names[i] + "- accessing camera.");
+        } else if(package_names != null) {
+            for(int i=0;i<package_names.length;i++)
+                Log.i(PRIVACY_TAG,"Blocked Package: -" + package_names[i] + "- accessing camera.");
+        }
     }
     //END PRIVACY
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
     /**
@@ -494,13 +501,13 @@ public class Camera {
         mPostviewCallback = null;
         mZoomListener = null;
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
         //BEGIN PRIVACY
         
         initiate();
         
         //END PRIVACY
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
 
         Looper looper;
         if ((looper = Looper.myLooper()) != null) {
@@ -924,46 +931,51 @@ public class Camera {
 
         @Override
         public void handleMessage(Message msg) {
-            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+            ///////////////////////////////////////////////////////////////////////////////////////
             //BEGIN PRIVACY
 
-    	    boolean access = false;
-    	    if(!privacyMode){
-    	        initiate();
-    	    }
+            boolean access = false;
+            if(!privacyMode) {
+                initiate();
+            }
 
-    	    String packageName[] = getPackageName();
-    	    try {
-    	        switch (checkIfPackagesAllowed()) {
-    	        case IS_ALLOWED:
-    	            access = true;
-    	            dataAccess(true);
-    	            if(packageName != null && pSetMan != null) {
-    	                pSetMan.notification(packageName[0], PrivacySettings.REAL, PrivacySettings.DATA_CAMERA, null);
-    	            }
-    	            break;
-    	        case GOT_ERROR:
-    	            access = false;
-    	            dataAccess(false);
-    	            if(packageName != null && pSetMan != null) {
-    	                pSetMan.notification(packageName[0], PrivacySettings.ERROR, PrivacySettings.DATA_CAMERA, null);
-    	            }
-    	            break;
-    	        default:
-    	            access = false;
-    	            dataAccess(false);
-    	            if(packageName != null && pSetMan != null) {
-    	                pSetMan.notification(packageName[0], PrivacySettings.EMPTY, PrivacySettings.DATA_CAMERA, null);
-    	            }
-    	            break;
-    	        }
-    	    } catch (Exception e) {
-    	        access = false;
-    	        dataAccess(false);
-    	        if(packageName != null && pSetMan != null) {
-    	            pSetMan.notification(packageName[0], PrivacySettings.EMPTY, PrivacySettings.DATA_CAMERA, null);
-    	        }
-    	    }
+            String packageName[] = getPackageName();
+            try {
+                switch (checkIfPackagesAllowed()) {
+                case IS_ALLOWED:
+                    access = true;
+                    dataAccess(true);
+                    if(packageName != null && pSetMan != null) {
+                        pSetMan.notification(packageName[0], PrivacySettings.REAL, 
+                                PrivacySettings.DATA_CAMERA, null);
+                    }
+                    break;
+                case GOT_ERROR:
+                    access = false;
+                    dataAccess(false);
+                    if(packageName != null && pSetMan != null) {
+                        pSetMan.notification(packageName[0], PrivacySettings.ERROR, 
+                                PrivacySettings.DATA_CAMERA, null);
+                    }
+                    break;
+                default:
+                    access = false;
+                    dataAccess(false);
+                    if(packageName != null && pSetMan != null) {
+                        pSetMan.notification(packageName[0], PrivacySettings.EMPTY, 
+                                PrivacySettings.DATA_CAMERA, null);
+                    }
+                    break;
+                }
+            } catch (Exception e) {
+                access = false;
+                dataAccess(false);
+                if(packageName != null && pSetMan != null) {
+                    pSetMan.notification(packageName[0], PrivacySettings.EMPTY, 
+                            PrivacySettings.DATA_CAMERA, null);
+                }
+            }
 
             switch(msg.what) {
             case CAMERA_MSG_SHUTTER:
@@ -974,19 +986,21 @@ public class Camera {
 
             case CAMERA_MSG_RAW_IMAGE:
                 if (mRawImageCallback != null) {
-		    if(access)
-                    	mRawImageCallback.onPictureTaken((byte[])msg.obj, mCamera);
-		    else
-			mRawImageCallback.onPictureTaken(null, mCamera);//this normally doesn't get a call, because we disabled this receiver in takepicture method!
+                    if(access)
+                        mRawImageCallback.onPictureTaken((byte[])msg.obj, mCamera);
+                    else
+                        //this normally doesn't get a call, because we disabled this receiver in 
+                        //takepicture method!
+                        mRawImageCallback.onPictureTaken(null, mCamera);
                 }
                 return;
 
             case CAMERA_MSG_COMPRESSED_IMAGE:
                 if (mJpegCallback != null) {
-		    if(access)
-                    	mJpegCallback.onPictureTaken((byte[])msg.obj, mCamera);
-		    else
-			mJpegCallback.onPictureTaken(getFakeImage(), mCamera);
+                    if(access)
+                        mJpegCallback.onPictureTaken((byte[])msg.obj, mCamera);
+                    else
+                        mJpegCallback.onPictureTaken(getFakeImage(), mCamera);
                 }
                 return;
 
@@ -1006,9 +1020,12 @@ public class Camera {
                     }
                     //pCb.onPreviewFrame((byte[])msg.obj, mCamera);
                     if(access)
-                        pCb.onPreviewFrame((byte[])msg.obj, mCamera);//leave the camera the preview frame!
+                        //leave the camera the preview frame!
+                        pCb.onPreviewFrame((byte[])msg.obj, mCamera);
                     else
-                        pCb.onPreviewFrame(getFakeImage(), mCamera);//here we go testing if it is able to give preview of fake image, if it doesn't work -> pass null
+                        //here we go testing if it is able to give preview of fake image, 
+                        //if it doesn't work -> pass null
+                        pCb.onPreviewFrame(getFakeImage(), mCamera);
                 }
                 return;
 
@@ -1018,7 +1035,8 @@ public class Camera {
                     if(access)
                         mPostviewCallback.onPictureTaken((byte[])msg.obj, mCamera);
                     else
-                        mPostviewCallback.onPictureTaken(getFakeImage(), mCamera);//same as in onpreviewframe -> give test fake image
+                        //same as in onpreviewframe -> give test fake image
+                        mPostviewCallback.onPictureTaken(getFakeImage(), mCamera);
                 }
                 return;
 
@@ -1064,7 +1082,7 @@ public class Camera {
             }
         }
         //END PRIVACY
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
     }
 
     private static void postEventFromNative(Object camera_ref,
@@ -1309,25 +1327,27 @@ public class Camera {
         mJpegCallback = jpeg;
 
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //BEGIN PRIVACY
-	//check if we are in privacy mode!, this is a to hard method to prevent from making pictures, because camera will freeze!	
-	if(!privacyMode){
-		initiate();
-	}
-	if(checkIfPackagesAllowed() != IS_ALLOWED){
-//		mShutterCallback = null;
-        	mRawImageCallback = null;
-		Log.i(PRIVACY_TAG,"blocked rawImageCallback -> it will never be called!");
-//        	mPostviewCallback = null;
-//        	mJpegCallback = null;
-//		dataAccess(false);
-	}
-//	else{
-//		dataAccess(true);
-//	}
-	//END PRIVACY
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //BEGIN PRIVACY
+    //check if we are in privacy mode!, this is a to hard method to prevent from making pictures, 
+    //because camera will freeze!    
+    if(!privacyMode) {
+        initiate();
+    }
+    if(checkIfPackagesAllowed() != IS_ALLOWED) {
+//      mShutterCallback = null;
+        mRawImageCallback = null;
+        Log.i(PRIVACY_TAG,"blocked rawImageCallback -> it will never be called!");
+//      mPostviewCallback = null;
+//      mJpegCallback = null;
+//      dataAccess(false);
+    }
+//    else {
+//        dataAccess(true);
+//    }
+    //END PRIVACY
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    
 
 
         // If callback is not set, do not send me callbacks.

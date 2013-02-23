@@ -39,7 +39,7 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
 
     private static boolean sendNotifications = true; 
     private PrivacyPersistenceAdapter persistenceAdapter;
-    
+
     private Context context;
 
     public static PrivacyFileObserver obs;
@@ -50,19 +50,19 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
 
     static final double API_VERSION = 1.51;
     static final double MOD_VERSION = 1.0;
-    static final String MOD_DETAILS = "OpenPDroid 1.0 by FFU5y, Mateor, wbedard; forked from PDroid 2.0\n" +
-    		"PDroid 2.0 by CollegeDev; forked from PDroid\n" +
-    		"PDroid by Syvat's\n" +
-    		"Additional contributions by Pastime1971";
+    static final String MOD_DETAILS = 
+            "OpenPDroid 1.0 by FFU5y, Mateor, wbedard; forked from PDroid 2.0\n" +
+            "PDroid 2.0 by CollegeDev; forked from PDroid\n" +
+            "PDroid by Syvat's\n" +
+            "Additional contributions by Pastime1971";
 
     /**
      * @hide - this should be instantiated through Context.getSystemService
      * @param context
      */
     public PrivacySettingsManagerService(Context context) {
-        Log.i(TAG,
-                "PrivacySettingsManagerService - initializing for package: "
-                        + context.getPackageName() + " UID: " + Binder.getCallingUid());
+        Log.i(TAG,"PrivacySettingsManagerService - initializing for package: "
+                + context.getPackageName() + " UID: " + Binder.getCallingUid());
         this.context = context;
 
         persistenceAdapter = new PrivacyPersistenceAdapter(context);
@@ -80,11 +80,12 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
         // Log.d(TAG, "getSettings - " + packageName);
         if (enabled || context.getPackageName().equals("com.privacy.pdroid")
                 || context.getPackageName().equals("com.privacy.pdroid.Addon")
-                || context.getPackageName().equals("com.android.privacy.pdroid.extension"))
+                || context.getPackageName().equals("com.android.privacy.pdroid.extension")) {
             // we have to add our addon package here, to get real settings
             return persistenceAdapter.getSettings(packageName);
-        else
+        } else {
             return null;
+        }
     }
 
     public boolean saveSettings(PrivacySettings settings) throws RemoteException {
@@ -94,11 +95,12 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
         if (Binder.getCallingUid() != 1000) {
             checkCallerCanWriteOrThrow();
         }
-        
+
         Log.d(TAG, "saveSettings - " + settings);
         boolean result = persistenceAdapter.saveSettings(settings);
-        if (result == true)
+        if (result == true) {
             obs.addObserver(settings.getPackageName());
+        }
         return result;
     }
 
@@ -107,7 +109,6 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
         if (Binder.getCallingUid() != 1000) {
             checkCallerCanWriteOrThrow();
         }
-
         boolean result = persistenceAdapter.deleteSettings(packageName);
         // update observer if directory exists
         String observePath = PrivacyPersistenceAdapter.SETTINGS_DIRECTORY + "/" + packageName;
@@ -118,7 +119,7 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
         }
         return result;
     }
-    
+
     public void notification(final String packageName, final byte accessMode,
             final String dataType, final String output) {
         if (bootCompleted && notificationsEnabled && sendNotifications) {
@@ -151,9 +152,11 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
         try {
             StackTraceElement[] elements = new Throwable().getStackTrace();
             String callerClassName = elements[1].getClassName();
-            Log.d(TAG, "PrivacySettingsManagerService:setBootCompleted: called by " + callerClassName);
+            Log.d(TAG, "PrivacySettingsManagerService:setBootCompleted: called by " 
+                    + callerClassName);
         } catch (Exception e) {
-            Log.d(TAG, "PrivacySettingsManagerService:setBootCompleted: Exception while obtaining caller class name");
+            Log.d(TAG, "PrivacySettingsManagerService:setBootCompleted: "
+                    + "Exception while obtaining caller class name");
         }
         bootCompleted = true;
     }
@@ -175,7 +178,8 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
     /**
      * Enables or disables PDroid protection. If 'enabled' = true, PDroid will
      * return valid settings. Otherwise it will return 'null', which allows all.
-     * Setting to 'enabled' has immediate effects; setting to 'disabled' has no effect until next reboot.
+     * Setting to 'enabled' has immediate effects; setting to 'disabled' has no 
+     * effect until next reboot.
      * @param newIsEnabled 
      * @return new 'enabled' state.
      */
@@ -190,71 +194,71 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
             return false;
         }
     }
-    
-        /**
+
+    /**
      * Check the caller of the service has privileges to write to it
-	 * Throw an exception if not. 
-	 */
-	private void checkCallerCanWriteOrThrow() throws RemoteException {
-		context.enforceCallingPermission(WRITE_PRIVACY_SETTINGS,
-				"Requires WRITE_PRIVACY_SETTINGS");
-		//for future:
-		// if not allowed then throw
-		//			throw new SecurityException("Attempted to write without sufficient priviliges");
+     * Throw an exception if not. 
+     */
+    private void checkCallerCanWriteOrThrow() throws RemoteException {
+        context.enforceCallingPermission(WRITE_PRIVACY_SETTINGS,
+                "Requires WRITE_PRIVACY_SETTINGS");
+        //for future:
+        // if not allowed then throw
+        //       throw new SecurityException("Attempted to write without sufficient priviliges");
 
-	}
-	
-	/**
-	 * Check that the caller of the service has privileges to write to it.
-	 * @return true if caller can write, false otherwise.
-	 */
-	private boolean checkCallerCanWriteSettings() throws RemoteException {
-		try {
-			checkCallerCanWriteOrThrow();
-			return true;
-		} catch (SecurityException e) {
-			return false;
-		}
-	}
+    }
+    
+    /**
+     * Check that the caller of the service has privileges to write to it.
+     * @return true if caller can write, false otherwise.
+     */
+    private boolean checkCallerCanWriteSettings() throws RemoteException {
+        try {
+            checkCallerCanWriteOrThrow();
+            return true;
+        } catch (SecurityException e) {
+            return false;
+        }
+    }
 
-	/**
-	 * Check the caller of the service has privileges to read from it
-	 * Throw an exception if not. 
-	 */
-	private void checkCallerCanReadOrThrow() {
-		if (Binder.getCallingUid() == 1000) {
-			return;
-		}
-		context.enforceCallingPermission(READ_PRIVACY_SETTINGS,
-				"Requires READ_PRIVACY_SETTINGS");
-		//for future:
-		// if not allowed then throw
-		//			throw new SecurityException("Attempted to read without sufficient priviliges");
+    /**
+     * Check the caller of the service has privileges to read from it
+     * Throw an exception if not. 
+     */
+    private void checkCallerCanReadOrThrow() {
+        if (Binder.getCallingUid() == 1000) {
+            return;
+        }
+        context.enforceCallingPermission(READ_PRIVACY_SETTINGS,
+                "Requires READ_PRIVACY_SETTINGS");
+        //for future:
+        // if not allowed then throw
+        //        throw new SecurityException("Attempted to read without sufficient priviliges");
 
-	}
-	
-	/**
-	 * Check that the caller of the service has privileges to read from it.
-	 * @return true if caller can read, false otherwise.
-	 */
-	private boolean checkCallerCanReadSettings() {
-		try {
-			checkCallerCanReadOrThrow();
-			return true;
-		} catch (SecurityException e) {
-			return false;
-		}
-	}
-	
-	
-	public static final String DEBUG_FLAG_SEND_NOTIFICATIONS = "sendNotifications";
-	public static final String DEBUG_FLAG_USE_CACHE = "useCache";
-	public static final String DEBUG_FLAG_CACHE_SIZE = "cacheSize";
-	public static final String DEBUG_FLAG_OPEN_AND_CLOSE_DB = "openAndCloseDb";
-	
-	public static final int DEBUG_FLAG_TYPE_INTEGER = 0;
-	public static final int DEBUG_FLAG_TYPE_BOOLEAN = 1;
-	
+    }
+    
+    /**
+     * Check that the caller of the service has privileges to read from it.
+     * @return true if caller can read, false otherwise.
+     */
+    private boolean checkCallerCanReadSettings() {
+        try {
+            checkCallerCanReadOrThrow();
+            return true;
+        } catch (SecurityException e) {
+            return false;
+        }
+    }
+    
+    
+    public static final String DEBUG_FLAG_SEND_NOTIFICATIONS = "sendNotifications";
+    public static final String DEBUG_FLAG_USE_CACHE = "useCache";
+    public static final String DEBUG_FLAG_CACHE_SIZE = "cacheSize";
+    public static final String DEBUG_FLAG_OPEN_AND_CLOSE_DB = "openAndCloseDb";
+    
+    public static final int DEBUG_FLAG_TYPE_INTEGER = 0;
+    public static final int DEBUG_FLAG_TYPE_BOOLEAN = 1;
+    
     public void setDebugFlagInt(String flagName, int value) throws RemoteException {
         checkCallerCanWriteOrThrow();
         if (flagName.equals(DEBUG_FLAG_CACHE_SIZE)) {
@@ -263,7 +267,7 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
             throw new RemoteException();
         }
     }
-    
+
     public int getDebugFlagInt(String flagName) throws RemoteException {
         checkCallerCanWriteOrThrow();
         if (flagName.equals(DEBUG_FLAG_CACHE_SIZE)) {
@@ -272,7 +276,7 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
             throw new RemoteException();
         }
     }
-    
+
     public void setDebugFlagBool(String flagName, boolean value) throws RemoteException {
         checkCallerCanWriteOrThrow();
         if (flagName.equals(DEBUG_FLAG_USE_CACHE)) {
@@ -285,7 +289,7 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
             throw new RemoteException();
         }
     }
-    
+
     public boolean getDebugFlagBool(String flagName) throws RemoteException {
         checkCallerCanWriteOrThrow();
         if (flagName.equals(DEBUG_FLAG_USE_CACHE)) {
@@ -297,8 +301,8 @@ public final class PrivacySettingsManagerService extends IPrivacySettingsManager
         } else {
             throw new RemoteException();
         }
-	}
-    
+    }
+
     public Map getDebugFlags() {
         Map<String, Integer> debugFlags = new HashMap<String, Integer>();
         debugFlags.put(DEBUG_FLAG_CACHE_SIZE, DEBUG_FLAG_TYPE_INTEGER);

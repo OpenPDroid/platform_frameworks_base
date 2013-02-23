@@ -376,8 +376,10 @@ public abstract class ContentResolver {
                 qCursor = unstableProvider.query(uri, projection,
                         selection, selectionArgs, sortOrder, remoteCancellationSignal);
                 // BEGIN privacy-added
-                // Log.d(TAG, "Privacy:ContentResolver:wrapping content resolver in PrivacyContentResolver");
-                qCursor = PrivacyContentResolver.enforcePrivacyPermission(uri, projection, mContext, qCursor);
+                // Log.d(TAG, "Privacy:ContentResolver:wrapping content resolver in "
+                //         + "PrivacyContentResolver");
+                qCursor = PrivacyContentResolver.enforcePrivacyPermission(uri, projection,
+                        mContext, qCursor);
                 // END privacy-added
             } catch (DeadObjectException e) {
                 // The remote process has died...  but we only hold an unstable
@@ -391,9 +393,11 @@ public abstract class ContentResolver {
                 qCursor = stableProvider.query(uri, projection,
                         selection, selectionArgs, sortOrder, remoteCancellationSignal);
                 // BEGIN privacy-added
-                // Log.d(TAG, "Privacy:ContentResolver:wrapping content resolver in PrivacyContentResolver");
-        		qCursor = PrivacyContentResolver.enforcePrivacyPermission(uri, projection, mContext, qCursor);
-        		// END privacy-added
+                // Log.d(TAG, "Privacy:ContentResolver:wrapping content resolver in "
+                //         + "PrivacyContentResolver");
+                qCursor = PrivacyContentResolver.enforcePrivacyPermission(uri, projection,
+                        mContext, qCursor);
+                // END privacy-added
 
             }
             if (qCursor == null) {
@@ -1266,7 +1270,8 @@ public abstract class ContentResolver {
     /**
      * Notify registered observers that a row was updated and attempt to sync changes
      * to the network.
-     * To register, call {@link #registerContentObserver(android.net.Uri , boolean, android.database.ContentObserver) registerContentObserver()}.
+     * To register, call {@link #registerContentObserver(android.net.Uri , boolean, 
+     * android.database.ContentObserver) registerContentObserver()}.
      * By default, CursorAdapter objects will get this notification.
      *
      * @param uri The uri of the content that was changed.
@@ -1281,7 +1286,8 @@ public abstract class ContentResolver {
 
     /**
      * Notify registered observers that a row was updated.
-     * To register, call {@link #registerContentObserver(android.net.Uri , boolean, android.database.ContentObserver) registerContentObserver()}.
+     * To register, call {@link #registerContentObserver(android.net.Uri , boolean,
+     * android.database.ContentObserver) registerContentObserver()}.
      * By default, CursorAdapter objects will get this notification.
      * If syncToNetwork is true, this will attempt to schedule a local sync using the sync
      * adapter that's registered for the authority of the provided uri. No account will be

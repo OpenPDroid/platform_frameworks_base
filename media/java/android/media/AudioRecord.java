@@ -29,7 +29,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //BEGIN privacy-added
+
 import android.app.ActivityThread;
 import android.app.Application;
 import android.content.Context;
@@ -44,7 +46,9 @@ import android.privacy.IPrivacySettingsManager;
 import android.privacy.PrivacyServiceException;
 import android.privacy.PrivacySettings;
 import android.privacy.PrivacySettingsManager;
+
 //END privacy-added
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * The AudioRecord class manages the audio resources for Java applications
@@ -208,7 +212,7 @@ public class AudioRecord
     private int mSessionId = 0;
 
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     //BEGIN PRIVACY 
 
     private static final int IS_ALLOWED = -1;
@@ -225,7 +229,7 @@ public class AudioRecord
     private IPackageManager mPm;
     
     //END PRIVACY
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -281,13 +285,13 @@ public class AudioRecord
             return; // with mState == STATE_UNINITIALIZED
         }
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
         //BEGIN PRIVACY
         
         initiate();
        
         //END PRIVACY
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
 
         mSessionId = session[0];
 
@@ -295,81 +299,86 @@ public class AudioRecord
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     //BEGIN PRIVACY
+    
     /**
      * {@hide}
-     * @return package names of current process which is using this object or null if something went wrong
+     * @return package names of current process which is using this object or null if something
+     * went wrong
      */
-    private String[] getPackageName(){
-    	try{
-    		if(mPm != null){
-        		int uid = Process.myUid();
-        		String[] package_names = mPm.getPackagesForUid(uid);
-        		return package_names;
-        	}
-    		else{
-    			mPm = IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
-    			int uid = Process.myUid();
-        		String[] package_names = mPm.getPackagesForUid(uid);
-        		return package_names;
-    		}
-    	}
-    	catch(Exception e){
-    		e.printStackTrace();
-    		Log.e(PRIVACY_TAG,"something went wrong with getting package name");
-    		return null;
-    	}
+    private String[] getPackageName() {
+        try {
+            if (mPm != null) {
+                int uid = Process.myUid();
+                String[] package_names = mPm.getPackagesForUid(uid);
+                return package_names;
+            } else {
+                mPm = IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
+                int uid = Process.myUid();
+                String[] package_names = mPm.getPackagesForUid(uid);
+                return package_names;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(PRIVACY_TAG,"something went wrong with getting package name");
+            return null;
+        }
     }
     /**
      * {@hide}
-     * This method sets up all variables which are needed for privacy mode! It also writes to privacyMode, if everything was successfull or not! 
+     * This method sets up all variables which are needed for privacy mode! It also writes to
+     * privacyMode, if everything was successfull or not! 
      * -> privacyMode = true ok! otherwise false!
      * CALL THIS METHOD IN CONSTRUCTOR!
      */
-    private void initiate(){
-    	try{
-    		context = null;
-    		if (pSetMan == null) pSetMan = PrivacySettingsManager.getPrivacyService();
-    		mPm = IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
-       	 	privacyMode = true;
-    	}
-    	catch(Exception e){
-    		e.printStackTrace();
-    		Log.e(PRIVACY_TAG, "Something went wrong with initalize variables");
-    		privacyMode = false;
-    	}
+    private void initiate() {
+        try {
+            context = null;
+            if (pSetMan == null) pSetMan = PrivacySettingsManager.getPrivacyService();
+            mPm = IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
+                privacyMode = true;
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(PRIVACY_TAG, "Something went wrong with initalize variables");
+            privacyMode = false;
+        }
     }
     /**
      * {@hide}
      * This method should be used, because in some devices the uid has more than one package within!
-     * @return IS_ALLOWED (-1) if all packages allowed, IS_NOT_ALLOWED(-2) if one of these packages not allowed, GOT_ERROR (-3) if something went wrong
+     * @return IS_ALLOWED (-1) if all packages allowed, IS_NOT_ALLOWED(-2) if one of these packages
+     * not allowed, GOT_ERROR (-3) if something went wrong
      */
-    private int checkIfPackagesAllowed(){
-        try{
+    private int checkIfPackagesAllowed() {
+        try {
             //boolean isAllowed = false;
             if (pSetMan == null) pSetMan = PrivacySettingsManager.getPrivacyService();
             String[] package_names = getPackageName();
             if (package_names == null) {
-                Log.e(PRIVACY_TAG,"AudioRecord:checkIfPackagesAllowed: return GOT_ERROR, because package_names are NULL");
+                Log.e(PRIVACY_TAG,"AudioRecord:checkIfPackagesAllowed: return GOT_ERROR, because "
+                        + "package_names are NULL");
                 return GOT_ERROR;
             }
             PrivacySettings pSet = null;
             try {
-                for(int i=0;i < package_names.length; i++){
+                for (int i=0;i < package_names.length; i++) {
                     pSet = pSetMan.getSettings(package_names[i]);
-                    if(pSet != null && (pSet.getRecordAudioSetting() != PrivacySettings.REAL)){ //if pSet is null, we allow application to access to mic
+                    //if pSet is null, we allow application to access to mic
+                    if (pSet != null && (pSet.getRecordAudioSetting() != PrivacySettings.REAL)) { 
                         return IS_NOT_ALLOWED;
                     }
                     pSet = null;
                 }
             } catch (PrivacyServiceException e) {
-                Log.e(PRIVACY_TAG,"AudioRecord:checkIfPackagesAllowed:return GOT_ERROR, because PrivacyServiceException occurred");
+                Log.e(PRIVACY_TAG,"AudioRecord:checkIfPackagesAllowed:return GOT_ERROR, because "
+                        + "PrivacyServiceException occurred");
                 return GOT_ERROR;
             }
             return IS_ALLOWED;
-        } catch (Exception e){
-            Log.e(PRIVACY_TAG,"AudioRecord:checkIfPackagesAllowed: Got exception in checkIfPackagesAllowed", e);
+        } catch (Exception e) {
+            Log.e(PRIVACY_TAG,"AudioRecord:checkIfPackagesAllowed: Got exception in "
+                    + "checkIfPackagesAllowed", e);
             return GOT_ERROR;
         }
     }
@@ -379,19 +388,21 @@ public class AudioRecord
      * Loghelper method, true = access successful, false = blocked access
      * {@hide}
      */
-    private void dataAccess(boolean success){
-	String package_names[] = getPackageName();
-	if(success && package_names != null){
-		for(int i=0;i<package_names.length;i++)
-			Log.i(PRIVACY_TAG,"Allowed Package: -" + package_names[i] + "- accessing microphone.");
-	}
-	else if(package_names != null){
-		for(int i=0;i<package_names.length;i++)
-			Log.i(PRIVACY_TAG,"Blocked Package: -" + package_names[i] + "- accessing microphone.");
-	}
+    private void dataAccess(boolean success) {
+        String package_names[] = getPackageName();
+        if (success && package_names != null) {
+            for (int i=0;i<package_names.length;i++)
+                Log.i(PRIVACY_TAG,"Allowed Package: -" + package_names[i]
+                        + "- accessing microphone.");
+        } else if (package_names != null) {
+            for (int i=0;i<package_names.length;i++)
+                Log.i(PRIVACY_TAG,"Blocked Package: -" + package_names[i]
+                        + "- accessing microphone.");
+        }
     }
+    
     //END PRIVACY
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -632,11 +643,9 @@ public class AudioRecord
         int size = native_get_min_buff_size(sampleRateInHz, channelCount, audioFormat);
         if (size == 0) {
             return AudioRecord.ERROR_BAD_VALUE;
-        } 
-        else if (size == -1) {
+        } else if (size == -1) {
             return AudioRecord.ERROR;
-        }
-        else {
+        } else {
             return size;
         }
     }
@@ -660,28 +669,34 @@ public class AudioRecord
     public void startRecording()
     throws IllegalStateException {
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    	//BEGIN PRIVACY
-    	//now check if everything was ok in constructor!
-        if(!privacyMode){
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        //BEGIN PRIVACY
+
+        //now check if everything was ok in constructor!
+        if (!privacyMode) {
             initiate();
         }
-        if ((mState != STATE_INITIALIZED) || (checkIfPackagesAllowed() != IS_ALLOWED)) { //If applicaton is not allowed -> throw exception!
+        //If applicaton is not allowed -> throw exception!
+        if ((mState != STATE_INITIALIZED) || (checkIfPackagesAllowed() != IS_ALLOWED)) { 
             dataAccess(false);
             String packageName[] = getPackageName();
-            if(packageName != null && pSetMan != null) {
-                pSetMan.notification(packageName[0], PrivacySettings.EMPTY, PrivacySettings.DATA_RECORD_AUDIO, null);
-                throw(new IllegalStateException("startRecording() called on an "+"uninitialized AudioRecord."));
+            if (packageName != null && pSetMan != null) {
+                pSetMan.notification(packageName[0], PrivacySettings.EMPTY, 
+                        PrivacySettings.DATA_RECORD_AUDIO, null);
+                throw(new IllegalStateException("startRecording() called on an "
+                        + "uninitialized AudioRecord."));
             }
         } else {
             dataAccess(true);
             String packageName[] = getPackageName();
             if(packageName != null && pSetMan != null) {
-                pSetMan.notification(packageName[0], PrivacySettings.REAL, PrivacySettings.DATA_RECORD_AUDIO, null);
+                pSetMan.notification(packageName[0], PrivacySettings.REAL, 
+                        PrivacySettings.DATA_RECORD_AUDIO, null);
             }
         }
+        
         //END PRIVACY
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
 
 
         // start recording
@@ -1009,4 +1024,3 @@ public class AudioRecord
     }
 
 }
-
